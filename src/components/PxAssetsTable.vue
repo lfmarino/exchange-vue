@@ -21,6 +21,7 @@
       >
         <td>
           <img
+            class="w-6 h-6"
             v-bind:src="
               `https://static.coincap.io/assets/icons/${asset.symbol.toLowerCase()}@2x.png`
             "
@@ -30,24 +31,53 @@
         <td>
           <b># {{ asset.rank }}</b>
         </td>
-        <td>{{ asset.name }}</td>
-        <td>{{ asset.priceUsd }}</td>
-        <td>{{ asset.marketCapUsd }}</td>
-        <td>{{ asset.changePercent24Hr }}</td>
-        <td class="hidden sm:block"></td>
+        <td>
+          <router-link
+            class="hover:underline text-green-600"
+            v-bind:to="{ name: 'coin-detail', params: { id: asset.id } }"
+          >
+            {{ asset.name }}
+          </router-link>
+          <small class="ml-1 text-gray-500">
+            {{ asset.symbol }}
+          </small>
+        </td>
+        <td>{{ asset.priceUsd | dollar }}</td>
+        <td>{{ asset.marketCapUsd | dollar }}</td>
+        <td
+          v-bind:class="
+            asset.changePercent24Hr.includes('-')
+              ? 'text-red-600'
+              : 'text-green-600'
+          "
+        >
+          {{ asset.changePercent24Hr | percent }}
+        </td>
+        <td class="hidden sm:block">
+          <px-button v-on:custom-click="goToCoin(asset.id)">
+            <span>Detalle</span>
+          </px-button>
+        </td>
       </tr>
     </tbody>
   </table>
 </template>
 
 <script>
+import PxButton from './PxButton'
+
 export default {
   name: 'PxAssetsTable',
-
+  components: { PxButton },
   props: {
     assets: {
       type: Array,
       default: () => []
+    }
+  },
+  methods: {
+    goToCoin(id) {
+      this.$router.push({ name: 'coin-detail', params: { id } })
     }
   }
 }
@@ -63,7 +93,7 @@ export default {
 }
 
 td {
-  padding: 20px 0px;
+  padding: 20px 0;
   font-size: 0.6rem;
   text-align: center;
 }
